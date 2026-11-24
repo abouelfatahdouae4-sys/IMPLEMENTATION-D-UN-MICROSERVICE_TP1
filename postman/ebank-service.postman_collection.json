@@ -1,0 +1,79 @@
+{
+  "info": {
+    "name": "ebank-service (Ghita Jourane)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8081" },
+    { "key": "compteId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "REST - Lister les comptes",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/comptes" }
+    },
+    {
+      "name": "REST - Créer un compte",
+      "event": [{
+        "listen": "test",
+        "script": { "type": "text/javascript", "exec": [
+          "pm.test('201 Created', () => pm.response.to.have.status(201));",
+          "pm.collectionVariables.set('compteId', pm.response.json().id);"
+        ]}
+      }],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/comptes",
+        "body": { "mode": "raw", "raw": "{\n  \"solde\": 15000,\n  \"devise\": \"MAD\",\n  \"type\": \"COMPTE_COURANT\"\n}" }
+      }
+    },
+    {
+      "name": "REST - Consulter un compte",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/comptes/{{compteId}}" }
+    },
+    {
+      "name": "REST - Modifier un compte",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/comptes/{{compteId}}",
+        "body": { "mode": "raw", "raw": "{\n  \"solde\": 25000,\n  \"type\": \"COMPTE_EPARGNE\"\n}" }
+      }
+    },
+    {
+      "name": "REST - Supprimer un compte",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/comptes/{{compteId}}" }
+    },
+    {
+      "name": "Spring Data Rest - Comptes (projection p1)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/comptes?projection=p1" }
+    },
+    {
+      "name": "Spring Data Rest - Comptes (projection p2)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/comptes?projection=p2" }
+    },
+    {
+      "name": "Spring Data Rest - Recherche par type",
+      "request": { "method": "GET", "url": "{{baseUrl}}/v1/comptes/search/byType?t=COMPTE_EPARGNE&projection=p1" }
+    },
+    {
+      "name": "GraphQL - Liste des comptes",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/graphql",
+        "body": { "mode": "graphql", "graphql": { "query": "query {\n  comptesList {\n    id\n    solde\n    devise\n    type\n    client { nom }\n  }\n}" } }
+      }
+    },
+    {
+      "name": "GraphQL - Ajouter un compte",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/graphql",
+        "body": { "mode": "graphql", "graphql": { "query": "mutation {\n  addCompte(compte: {solde: 9000, devise: \"EUR\", type: COMPTE_EPARGNE}) {\n    id\n    solde\n    type\n  }\n}" } }
+      }
+    }
+  ]
+}
